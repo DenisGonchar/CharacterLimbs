@@ -19,7 +19,7 @@ public:
 	FName BoneName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxHealth = 100.0f;
+	float Health = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* MeshComponent;
@@ -45,5 +45,5 @@ protected:
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage,AController* InstigatedBy, FVector HitLocation,UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser);
 
-	
+	void TakeLimbDamage(FCLLimdData& Limb, float Damage);
 };

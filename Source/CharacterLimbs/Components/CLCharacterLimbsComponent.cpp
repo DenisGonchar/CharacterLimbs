@@ -23,6 +23,7 @@ void UCLCharacterLimbsComponent::OnTakeDamage(AActor* DamagedActor, float Damage
 				{
 					TakeLimbDamage(limb, Damage);
 					break;
+					break;
 				}
 			}
 			BoneName = SkeletalMeshComponent->GetParentBone(BoneName);
@@ -45,7 +46,7 @@ void UCLCharacterLimbsComponent::TakeLimbDamage(FCLLimdData& Limb, float Damage)
 		{
 			if (Limb.MeshComponent != nullptr)
 			{
-				Limb.MeshComponent->SetVisibility(false);
+				Limb.MeshComponent->SetVisibility(false, true);
 				Limb.MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			}
 		}

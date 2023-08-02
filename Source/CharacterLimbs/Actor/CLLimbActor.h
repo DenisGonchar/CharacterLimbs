@@ -23,6 +23,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* MeshComponent;
 
+	USkeletalMeshComponent* GetMeshComponent() const { return MeshComponent; };
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

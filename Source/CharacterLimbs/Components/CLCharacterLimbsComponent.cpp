@@ -22,11 +22,16 @@ void UCLCharacterLimbsComponent::OnTakeDamage(AActor* DamagedActor, float Damage
 			{
 				if (limb.BoneName == BoneName)
 				{
-					TakeLimbDamage(limb, Damage);
-					if (FMath::IsNearlyZero(limb.Health))
+					if (!FMath::IsNearlyZero(limb.Health))
 					{
-						SpawnLimbActor(limb, SkeletalMeshComponent->GetComponentTransform());
+						TakeLimbDamage(limb, Damage);
+					
+						if (FMath::IsNearlyZero(limb.Health))
+						{
+							SpawnLimbActor(limb, SkeletalMeshComponent->GetComponentTransform());
 
+						}
+						
 					}
 
 					break;
@@ -70,7 +75,10 @@ void UCLCharacterLimbsComponent::SpawnLimbActor(const FCLLimdData& Limb,const FT
 
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<ACLLimbActor>(LimbActorClass, Transform, SpawnParameters);
+		SpawnParameters.Owner = GetOwner();
+		
+		const auto LimbActor = GetWorld()->SpawnActor<ACLLimbActor>(LimbActorClass, Transform, SpawnParameters);
+		LimbActor->GetMeshComponent()->SetSkeletalMesh(Limb.MeshComponent->SkeletalMesh);
 
 	}
 }

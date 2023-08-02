@@ -5,6 +5,7 @@
 #include "CLModularCharacter.generated.h"
 
 class UCLCharacterLimbsComponent;
+class UCLCombinedSkeletalMeshComponent;
 
 UCLASS()
 class ACLModularCharacter : public ACharacter
@@ -12,10 +13,13 @@ class ACLModularCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	ACLModularCharacter();
+	ACLModularCharacter(const FObjectInitializer& ObjectInitializer);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UCLCharacterLimbsComponent* CharacterLimbsComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UCLCombinedSkeletalMeshComponent* CombinedSkeletalMeshComponent;
+
 };

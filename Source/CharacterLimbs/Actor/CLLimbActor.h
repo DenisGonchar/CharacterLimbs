@@ -6,14 +6,22 @@
 #include "GameFramework/Actor.h"
 #include "CLLimbActor.generated.h"
 
+class USceneComponent;
+class USkeletalMeshComponent;
+
 UCLASS()
 class CHARACTERLIMBS_API ACLLimbActor : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ACLLimbActor();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USceneComponent* TransformComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* MeshComponent;
 
 protected:
 	// Called when the game starts or when spawned

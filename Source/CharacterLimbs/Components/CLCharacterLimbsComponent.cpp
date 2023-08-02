@@ -1,4 +1,5 @@
 #include "CLCharacterLimbsComponent.h"
+#include "Actor/CLLimbActor.h"
 
 void UCLCharacterLimbsComponent::BeginPlay()
 {
@@ -22,8 +23,14 @@ void UCLCharacterLimbsComponent::OnTakeDamage(AActor* DamagedActor, float Damage
 				if (limb.BoneName == BoneName)
 				{
 					TakeLimbDamage(limb, Damage);
+					if (FMath::IsNearlyZero(limb.Health))
+					{
+						SpawnLimbActor(limb, SkeletalMeshComponent->GetComponentTransform());
+
+					}
+
 					break;
-					break;
+					
 				}
 			}
 			BoneName = SkeletalMeshComponent->GetParentBone(BoneName);
@@ -53,4 +60,17 @@ void UCLCharacterLimbsComponent::TakeLimbDamage(FCLLimdData& Limb, float Damage)
 	}
 	
 
+}
+
+
+void UCLCharacterLimbsComponent::SpawnLimbActor(const FCLLimdData& Limb,const FTransform& Transform)
+{
+	if (LimbActorClass != nullptr && Limb.MeshComponent != nullptr && Limb.MeshComponent->SkeletalMesh != nullptr)
+	{
+
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<ACLLimbActor>(LimbActorClass, Transform, SpawnParameters);
+
+	}
 }

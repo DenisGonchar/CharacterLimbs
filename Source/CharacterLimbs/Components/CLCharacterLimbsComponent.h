@@ -8,6 +8,7 @@ class USkeletalMeshComponent;
 class AController;
 class UPrimitiveComponent;
 class UDamageType;
+class ACLLimbActor;
 
 USTRUCT(BlueprintType)
 struct FCLLimdData
@@ -40,10 +41,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FCLLimdData> Limbs;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ACLLimbActor> LimbActorClass;
 protected:
 	
 	UFUNCTION()
 	void OnTakeDamage(AActor* DamagedActor, float Damage,AController* InstigatedBy, FVector HitLocation,UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser);
 
 	void TakeLimbDamage(FCLLimdData& Limb, float Damage);
+
+	void SpawnLimbActor(const FCLLimdData& Limb, const FTransform& Transform);
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Components/SkeletalMeshComponent.h"
+#include "CLTypes.h"
 
 #include "CLCombinedSkeletalMeshComponent.generated.h"
 
@@ -96,17 +97,6 @@ public:
 };
 
 
-UENUM(BlueprintType)
-enum class ECLBodyPart : uint8
-{
-	Head,
-	Body,
-	LHand,
-	RHand,
-	LLeg,
-	RLeg
-
-};
 
 
 USTRUCT(BlueprintType)
@@ -135,15 +125,18 @@ public:
 	virtual void BeginPlay() override;
 
 	void RemoveBodyParts(const TArray<ECLBodyPart>& PartsToRemove);
-
+    
+    const TMap<ECLBodyPart, FCLMeshBodyPart>& GetBodyParts() const;
 protected:
 	void GenerateMesh(const TArray<FCLMeshBodyPart>& MeshParts);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combined mesh")
-	TArray<FCLMeshBodyPart> BodyParts;
+	TMap<ECLBodyPart, FCLMeshBodyPart> BodyParts;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combined mesh")
 	USkeleton* Skeleton;
+
+	TArray<ECLBodyPart> CurrentBodyParts;
 
 };

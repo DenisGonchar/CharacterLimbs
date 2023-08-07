@@ -3,6 +3,8 @@
 #include "SkeletalMeshMerge.h"
 #include "Engine/SkeletalMesh.h"
 #include "Animation/Skeleton.h"
+#include "CLTypes.h"
+
 
 
 static void ToMergeParams(const TArray<FSkelMeshMergeSectionMapping_BP>& InSectionMappings, TArray<FSkelMeshMergeSectionMapping>& OutSectionMappings)
@@ -83,7 +85,19 @@ void UCLCombinedSkeletalMeshComponent::OnRegister()
 {
 	Super::OnRegister();
 
-	GenerateMesh(BodyParts);
+	for (const auto& bodyPart : BodyParts)
+	{
+		if (bodyPart.Value.Mesh != nullptr)
+		{
+			CurrentBodyParts.Add(bodyPart.Key);
+		}
+		
+	}
+
+	TArray<FCLMeshBodyPart> meshBodyParts;
+	BodyParts.GenerateValueArray(meshBodyParts);
+
+	GenerateMesh(meshBodyParts);
 
 }
 
@@ -95,7 +109,33 @@ void UCLCombinedSkeletalMeshComponent::BeginPlay()
 
 void UCLCombinedSkeletalMeshComponent::RemoveBodyParts(const TArray<ECLBodyPart>& PartsToRemove)
 {
+	if (PartsToRemove.Num() != 0)
+	{
+		TArray<FCLMeshBodyPart> meshParts;
 
+		for (const auto& bodyPart : CurrentBodyParts)
+		{
+			if (!PartsToRemove.Contains(bodyPart))
+			{
+				meshParts.Add(BodyParts.FindChecked(bodyPart));
+
+			}
+		}
+
+		if (meshParts.Num() != CurrentBodyParts.Num())
+		{
+			GenerateMesh(meshParts);
+		}
+
+	}
+
+	
+
+}
+
+const TMap<ECLBodyPart, FCLMeshBodyPart>& UCLCombinedSkeletalMeshComponent::GetBodyParts() const
+{
+	return BodyParts;
 }
 
 void UCLCombinedSkeletalMeshComponent::GenerateMesh(const TArray<FCLMeshBodyPart>& MeshParts)

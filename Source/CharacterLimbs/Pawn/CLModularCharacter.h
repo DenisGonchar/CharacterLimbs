@@ -15,7 +15,10 @@ class ACLModularCharacter : public ACharacter
 public:
 	ACLModularCharacter(const FObjectInitializer& ObjectInitializer);
 
-public:
+	UCLCombinedSkeletalMeshComponent* GetCombinedSkeletalMeshComponent() const;
+
+
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UCLCharacterLimbsComponent* CharacterLimbsComponent;
 	

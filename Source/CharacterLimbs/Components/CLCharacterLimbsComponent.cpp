@@ -1,10 +1,20 @@
 #include "CLCharacterLimbsComponent.h"
 #include "Actor/CLLimbActor.h"
+#include "CLCombinedSkeletalMeshComponent.h"
+
 
 void UCLCharacterLimbsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CombinedSkeletalMesh = GetOwner()->FindComponentByClass<UCLCombinedSkeletalMeshComponent>();
+	if (CombinedSkeletalMesh == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s] CombinedSkeletalMesh is null"), *GetNameSafe(this));
+
+	}
+
+	
 	GetOwner()->OnTakePointDamage.AddDynamic(this, &UCLCharacterLimbsComponent::OnTakeDamage);
 	
 	
@@ -16,36 +26,21 @@ void UCLCharacterLimbsComponent::OnTakeDamage(AActor* DamagedActor, float Damage
 {
 	if (auto SkeletalMeshComponent = Cast<USkeletalMeshComponent>(FHitComponent))
 	{
-		do
+		if (auto limb = FindLimbData(SkeletalMeshComponent, BoneName))
 		{
-			for (auto& limb : Limbs)
+			if (limb->Health >= 0.0f)
 			{
-				if (limb.BoneName == BoneName)
+				TakeLimbDamage(*limb, Damage);
+				if (limb->Health <= 0.0f && CombinedSkeletalMesh.IsValid())
 				{
-					if (!FMath::IsNearlyZero(limb.Health))
-					{
-						TakeLimbDamage(limb, Damage);
+					CombinedSkeletalMesh->RemoveBodyParts({limb->BodyPart});
 					
-						if (FMath::IsNearlyZero(limb.Health))
-						{
-							SpawnLimbActor(limb, SkeletalMeshComponent->GetComponentTransform());
-
-						}
-						
-					}
-
-					break;
-					
+					SpawnLimbActor(*limb, SkeletalMeshComponent->GetComponentTransform());
 				}
 			}
-			BoneName = SkeletalMeshComponent->GetParentBone(BoneName);
-
-		} 
-		while (BoneName != NAME_None);
-
+		}
 	}
-	
-	GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Green, FString::Printf(TEXT("Damage: %.2f, mesh: %s, bone: %s"), Damage, *GetNameSafe(FHitComponent), *BoneName.ToString()));
+
 }
 
 void UCLCharacterLimbsComponent::TakeLimbDamage(FCLLimdData& Limb, float Damage)
@@ -54,31 +49,45 @@ void UCLCharacterLimbsComponent::TakeLimbDamage(FCLLimdData& Limb, float Damage)
 	{
 		Limb.Health = FMath::Max(0.f, Limb.Health - Damage);
 
-		if (FMath::IsNearlyZero(Limb.Health))
-		{
-			if (Limb.MeshComponent != nullptr)
-			{
-				Limb.MeshComponent->SetVisibility(false, true);
-				Limb.MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			}
-		}
 	}
-	
 
 }
 
 
 void UCLCharacterLimbsComponent::SpawnLimbActor(const FCLLimdData& Limb,const FTransform& Transform)
 {
-	if (LimbActorClass != nullptr && Limb.MeshComponent != nullptr && Limb.MeshComponent->SkeletalMesh != nullptr)
+	if (auto bodyPartPtr = CombinedSkeletalMesh->GetBodyParts().Find(Limb.BodyPart))
 	{
+		if (LimbActorClass != nullptr && bodyPartPtr->Mesh != nullptr)
+		{
 
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParameters.Owner = GetOwner();
-		
-		const auto LimbActor = GetWorld()->SpawnActor<ACLLimbActor>(LimbActorClass, Transform, SpawnParameters);
-		LimbActor->GetMeshComponent()->SetSkeletalMesh(Limb.MeshComponent->SkeletalMesh);
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			SpawnParameters.Owner = GetOwner();
 
+			const auto LimbActor = GetWorld()->SpawnActor<ACLLimbActor>(LimbActorClass, Transform, SpawnParameters);
+			LimbActor->GetMeshComponent()->SetSkeletalMesh(bodyPartPtr->Mesh);
+
+		}
 	}
+	
+}
+
+FCLLimdData* UCLCharacterLimbsComponent::FindLimbData(USkeletalMeshComponent* MeshComponent, FName BoneName) 
+{
+	do
+	{
+		for (auto& limb : Limbs)
+		{
+			if (limb.BoneName == BoneName)
+			{
+				return &limb;
+			}
+		}
+		BoneName = MeshComponent->GetParentBone(BoneName);
+
+	} while (BoneName != NAME_None);
+
+	return nullptr;
+
 }

@@ -11,3 +11,8 @@ ACLModularCharacter::ACLModularCharacter(const FObjectInitializer& ObjectInitial
 	CombinedSkeletalMeshComponent = CastChecked<UCLCombinedSkeletalMeshComponent>(GetMesh());
 
 }
+
+UCLCombinedSkeletalMeshComponent* ACLModularCharacter::GetCombinedSkeletalMeshComponent() const
+{
+	return CombinedSkeletalMeshComponent;
+}

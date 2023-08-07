@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include <CLTypes.h>
 
 #include "CLCharacterLimbsComponent.generated.h"
 
@@ -9,6 +10,8 @@ class AController;
 class UPrimitiveComponent;
 class UDamageType;
 class ACLLimbActor;
+class UCLCombinedSkeletalMeshComponent;
+
 
 USTRUCT(BlueprintType)
 struct FCLLimdData
@@ -23,8 +26,7 @@ public:
 	float Health = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USkeletalMeshComponent* MeshComponent;
-	
+	ECLBodyPart	BodyPart;
 	
 };
 
@@ -37,12 +39,6 @@ public:
 	virtual void BeginPlay() override;
 	
 	
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FCLLimdData> Limbs;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<ACLLimbActor> LimbActorClass;
 protected:
 	
 	UFUNCTION()
@@ -51,4 +47,16 @@ protected:
 	void TakeLimbDamage(FCLLimdData& Limb, float Damage);
 
 	void SpawnLimbActor(const FCLLimdData& Limb, const FTransform& Transform);
+
+	FCLLimdData* FindLimbData(USkeletalMeshComponent* MeshComponent, FName BoneName);
+
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FCLLimdData> Limbs;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ACLLimbActor> LimbActorClass;
+
+	TWeakObjectPtr<UCLCombinedSkeletalMeshComponent> CombinedSkeletalMesh;
 };

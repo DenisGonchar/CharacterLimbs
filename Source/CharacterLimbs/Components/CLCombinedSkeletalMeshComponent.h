@@ -137,6 +137,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combined mesh")
 	USkeleton* Skeleton;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combined mesh")
+    UPhysicsAsset* PhysicsAsset;
+
+
 	TArray<ECLBodyPart> CurrentBodyParts;
 
 };

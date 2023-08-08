@@ -112,20 +112,28 @@ void UCLCombinedSkeletalMeshComponent::RemoveBodyParts(const TArray<ECLBodyPart>
 	if (PartsToRemove.Num() != 0)
 	{
 		TArray<FCLMeshBodyPart> meshParts;
+		
+		const int32 oldBodyPartsNumbers = CurrentBodyParts.Num();
 
-		for (const auto& bodyPart : CurrentBodyParts)
+		for (auto bodyPart : PartsToRemove)
 		{
-			if (!PartsToRemove.Contains(bodyPart))
+			CurrentBodyParts.Remove(bodyPart);
+
+		}
+
+		if (oldBodyPartsNumbers != CurrentBodyParts.Num())
+		{
+
+			for (const auto& bodyPart : CurrentBodyParts)
 			{
 				meshParts.Add(BodyParts.FindChecked(bodyPart));
 
 			}
+
+			GenerateMesh(meshParts);
+
 		}
 
-		if (meshParts.Num() != CurrentBodyParts.Num())
-		{
-			GenerateMesh(meshParts);
-		}
 
 	}
 
@@ -155,6 +163,7 @@ void UCLCombinedSkeletalMeshComponent::GenerateMesh(const TArray<FCLMeshBodyPart
 	
 	if (const auto skeletalMesh = UMeshMergeFunctionLibrary::MergeMeshes(SkeletalMeshMergeParams))
 	{
+		skeletalMesh->SetPhysicsAsset(PhysicsAsset);
 		SetSkeletalMesh(skeletalMesh);
 	}
 

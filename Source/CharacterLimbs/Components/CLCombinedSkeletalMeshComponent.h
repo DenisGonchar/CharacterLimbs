@@ -105,13 +105,12 @@ struct FCLMeshBodyPart
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	ECLBodyPart BodyPart;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USkeletalMesh* Mesh;
 
-    
+    FName BoneName;
+
 };
 
 
@@ -127,6 +126,9 @@ public:
 	void RemoveBodyParts(const TArray<ECLBodyPart>& PartsToRemove);
     
     const TMap<ECLBodyPart, FCLMeshBodyPart>& GetBodyParts() const;
+    
+    void SetBodyPartBoneName(ECLBodyPart BodyPart, FName BoneName);
+
 protected:
 	void GenerateMesh(const TArray<FCLMeshBodyPart>& MeshParts);
 

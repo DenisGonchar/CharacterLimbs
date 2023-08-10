@@ -47,7 +47,7 @@ USkeletalMesh* UMeshMergeFunctionLibrary::MergeMeshes(const FSkeletalMeshMergePa
 		{
 			return InMesh == nullptr;
 		});
-	if (MeshesToMergeCopy.Num() <= 1)
+	if (MeshesToMergeCopy.Num() < 1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Must provide multiple valid Skeletal Meshes in order to perform a merge."));
 		return nullptr;
@@ -134,16 +134,21 @@ void UCLCombinedSkeletalMeshComponent::RemoveBodyParts(const TArray<ECLBodyPart>
 
 		}
 
-
 	}
-
-	
 
 }
 
 const TMap<ECLBodyPart, FCLMeshBodyPart>& UCLCombinedSkeletalMeshComponent::GetBodyParts() const
 {
 	return BodyParts;
+}
+
+void UCLCombinedSkeletalMeshComponent::SetBodyPartBoneName(ECLBodyPart BodyPart, FName BoneName)
+{
+	if (const auto bodyPartPtr = BodyParts.Find(BodyPart))
+	{
+		bodyPartPtr->BoneName = BoneName;
+	}
 }
 
 void UCLCombinedSkeletalMeshComponent::GenerateMesh(const TArray<FCLMeshBodyPart>& MeshParts)
@@ -167,6 +172,13 @@ void UCLCombinedSkeletalMeshComponent::GenerateMesh(const TArray<FCLMeshBodyPart
 		SetSkeletalMesh(skeletalMesh);
 	}
 
+	for (const auto& bodyPart : BodyParts)
+	{
+		if (!bodyPart.Value.BoneName.IsNone() && !CurrentBodyParts.Contains(bodyPart.Key))
+		{
+			TermBodiesBelow(bodyPart.Value.BoneName);
+		}
+	}
 
 }
 

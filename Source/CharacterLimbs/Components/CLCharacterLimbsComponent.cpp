@@ -3,43 +3,63 @@
 #include "CLCombinedSkeletalMeshComponent.h"
 
 
+void UCLCharacterLimbsComponent::OnRegister()
+{
+	Super::OnRegister();
+
+	CombinedSkeletalMesh = GetOwner()->FindComponentByClass<UCLCombinedSkeletalMeshComponent>();
+	if (CombinedSkeletalMesh.IsValid())
+	{
+		for (const auto& limb : Limbs)
+		{
+			CombinedSkeletalMesh->SetBodyPartBoneName(limb.BodyPart, limb.BoneName);
+		}
+		
+	}
+}
+
 void UCLCharacterLimbsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CombinedSkeletalMesh = GetOwner()->FindComponentByClass<UCLCombinedSkeletalMeshComponent>();
 	if (CombinedSkeletalMesh == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[%s] CombinedSkeletalMesh is null"), *GetNameSafe(this));
 
 	}
 
-	
-	GetOwner()->OnTakePointDamage.AddDynamic(this, &UCLCharacterLimbsComponent::OnTakeDamage);
-	
-	
 }
 
-void UCLCharacterLimbsComponent::OnTakeDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
-	FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
-	const UDamageType* DamageType, AActor* DamageCauser)
+void UCLCharacterLimbsComponent::TakeDamage(float Damage, AController* InstigatedBy, AActor* DamageCauser, UPrimitiveComponent* FHitComponent, FName BoneName)
 {
 	if (auto SkeletalMeshComponent = Cast<USkeletalMeshComponent>(FHitComponent))
 	{
 		if (auto limb = FindLimbData(SkeletalMeshComponent, BoneName))
 		{
-			if (limb->Health >= 0.0f)
+			if (limb->Health > 0.0f)
 			{
 				TakeLimbDamage(*limb, Damage);
 				if (limb->Health <= 0.0f && CombinedSkeletalMesh.IsValid())
 				{
-					CombinedSkeletalMesh->RemoveBodyParts({limb->BodyPart});
-					
+					CombinedSkeletalMesh->RemoveBodyParts({ limb->BodyPart });
+
 					SpawnLimbActor(*limb, SkeletalMeshComponent->GetComponentTransform());
 				}
 			}
 		}
 	}
+	
+}
+
+const FCLLimdData* UCLCharacterLimbsComponent::FindLimbDataByBone(FName BoneName) const
+{
+	if (CombinedSkeletalMesh.IsValid())
+	{
+		return const_cast<UCLCharacterLimbsComponent*>(this)->FindLimbData(CombinedSkeletalMesh.Get(), BoneName);
+
+	}
+
+	return nullptr;
 
 }
 

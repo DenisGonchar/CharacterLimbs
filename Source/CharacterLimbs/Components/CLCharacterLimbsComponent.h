@@ -26,6 +26,9 @@ public:
 	float Health = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CharacterDamageMultiplier = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECLBodyPart	BodyPart;
 	
 };
@@ -36,14 +39,14 @@ class UCLCharacterLimbsComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	virtual void OnRegister() override;
 	virtual void BeginPlay() override;
 	
-	
+	void TakeDamage(float Damage, AController* InstigatedBy, AActor* DamageCauser, UPrimitiveComponent* FHitComponent, FName BoneName);
+
+	const FCLLimdData* FindLimbDataByBone(FName BoneName) const;
 protected:
 	
-	UFUNCTION()
-	void OnTakeDamage(AActor* DamagedActor, float Damage,AController* InstigatedBy, FVector HitLocation,UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser);
-
 	void TakeLimbDamage(FCLLimdData& Limb, float Damage);
 
 	void SpawnLimbActor(const FCLLimdData& Limb, const FTransform& Transform);

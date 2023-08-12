@@ -76,17 +76,15 @@ void UCLCharacterLimbsComponent::TakeLimbDamage(FCLLimdData& Limb, float Damage)
 
 void UCLCharacterLimbsComponent::SpawnLimbActor(const FCLLimdData& Limb,const FTransform& Transform)
 {
-	if (auto bodyPartPtr = CombinedSkeletalMesh->GetBodyParts().Find(Limb.BodyPart))
+	if (const auto bodyPartPtr = CombinedSkeletalMesh->GetBodyParts().Find(Limb.BodyPart))
 	{
 		if (LimbActorClass != nullptr && bodyPartPtr->Mesh != nullptr)
 		{
+			const auto LimbActor = GetWorld()->SpawnActorDeferred<ACLLimbActor>(LimbActorClass, Transform, GetOwner(), nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 
-			FActorSpawnParameters SpawnParameters;
-			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			SpawnParameters.Owner = GetOwner();
-
-			const auto LimbActor = GetWorld()->SpawnActor<ACLLimbActor>(LimbActorClass, Transform, SpawnParameters);
+			LimbActor->PrototyActor = GetOwner();
 			LimbActor->GetMeshComponent()->SetSkeletalMesh(bodyPartPtr->Mesh);
+			LimbActor->FinishSpawning(Transform);
 
 		}
 	}

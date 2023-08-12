@@ -23,6 +23,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* MeshComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	AActor* PrototyActor;
+
 	USkeletalMeshComponent* GetMeshComponent() const { return MeshComponent; };
 
 protected:
